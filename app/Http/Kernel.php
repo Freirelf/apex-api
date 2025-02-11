@@ -9,7 +9,7 @@ class Kernel extends HttpKernel
     /**
      * The application's global HTTP middleware stack.
      *
-     * These middleware são executados em cada requisição para a aplicação.
+     * These middleware are executed on every request to the application
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
@@ -19,7 +19,7 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * As configurações de middleware por grupo.
+     * The middleware settings per group.
      */
     protected $middlewareGroups = [
         'web' => [
@@ -38,9 +38,10 @@ class Kernel extends HttpKernel
     ];
 
     /**
-     * Lista de middlewares individuais da aplicação.
+     * List of individual application middleware.
      */
     protected $routeMiddleware = [
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -51,6 +52,5 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ];
 }

@@ -21,7 +21,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'role', // Adicione os campos adicionais necessários
+        'role', 
     ];
 
     /**
@@ -60,6 +60,16 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return []; // Retorne informações adicionais, se necessário
+        return ['role' => $this->role];
+    }
+
+    public function motorcyclist()
+    {
+        return $this->hasOne(Motorcyclist::class);
+    }
+
+    public function store()
+    {
+        return $this->hasOne(Store::class);
     }
 }

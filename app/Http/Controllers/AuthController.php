@@ -16,7 +16,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-        // Validação
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -62,7 +61,6 @@ class AuthController extends Controller
             'user' => $user,
         ], 201);    }
 
-   // Login de usuários
    public function login(Request $request)
    {
        // Validação das credenciais
@@ -81,21 +79,17 @@ class AuthController extends Controller
            return response()->json(['error' => 'Não foi possível gerar o token'], 500);
        }
 
-       // Retornar o token e informações do usuário
        return response()->json([
            'user' => JWTAuth::user(),
            'token' => $token,
        ]);
    }
 
-   // Logout do usuário
    public function logout()
     {
         try {
-            // Obtém o token da requisição
             $token = JWTAuth::getToken();
 
-            // Invalida o token
             JWTAuth::invalidate($token);
 
             return response()->json(['message' => 'Logout realizado com sucesso']);
@@ -108,7 +102,6 @@ class AuthController extends Controller
         }
     }
 
-   // Retornar usuário autenticado
    public function me()
    {
        try {
