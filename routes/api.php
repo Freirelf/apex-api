@@ -40,8 +40,14 @@ Route::middleware(['auth:api', 'role:store'])->group(function () {
 
 // Routes for MOTOBOYS (candidacy)
 Route::middleware(['auth:api', 'role:motorcyclist'])->group(function () {
-    Route::post('/candidacy', [ApplicationController::class, 'apply']); // Candidatar-se
-    Route::get('/my-candidacy', [ApplicationController::class, 'myApplications']); // Ver minhas candidaturas
+    Route::post('/candidacy', [ApplicationController::class, 'apply']); 
+    Route::get('/my-candidacy', [ApplicationController::class, 'myApplications']); 
+    Route::delete('/candidacy/{id}', [ApplicationController::class, 'removeApplication']);
+});
+
+Route::middleware(['auth:api', 'role:store'])->group(function () {
+    Route::get('/delivery-jobs/{id}/candidates', [ApplicationController::class, 'listCandidates']); 
+    Route::put('/candidacy/{id}/status', [ApplicationController::class, 'updateStatus']); 
 });
 
 // Routes for testing
