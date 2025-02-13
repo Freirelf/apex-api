@@ -18,12 +18,12 @@ class Application extends Model
     // Relation between Application and Motorcyclist
     public function motorcyclist()
     {
-        return $this->belongsTo(Motorcyclist::class);
+        return $this->belongsTo(Motorcyclist::class, 'motorcyclist_id');
     }
 
     // Relation between Application and DeliveryJob
     public function deliveryJob()
     {
-        return $this->belongsTo(DeliveryJob::class);
+        return $this->belongsTo(DeliveryJob::class, 'delivery_job_id');
     }
 }

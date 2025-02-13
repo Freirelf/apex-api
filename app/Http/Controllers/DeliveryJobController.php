@@ -12,22 +12,18 @@ class DeliveryJobController extends Controller
     {   
         $user = auth('api')->user();
     
-        // 🔍 Depuração: Verificar se o usuário foi autenticado corretamente
         if (!$user) {
             return response()->json(['error' => 'User not authenticated'], 401);
         }
     
-        // 🔍 Verifica se o usuário tem uma loja associada
         $store = $user->store;
     
         if (!$store) {
             return response()->json(['error' => 'Store not found for this user'], 404);
         }
     
-        // ✅ Agora sabemos que a loja existe, então podemos pegar o ID
         $storeId = $store->id;
     
-        // 📌 Validação dos campos
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -41,12 +37,10 @@ class DeliveryJobController extends Controller
             'pickup_address' => 'required|string|max:255',
         ]);
     
-        // 📌 Verifica se o usuário autenticado é uma loja
         if ($user->role !== 'store') {
             return response()->json(['error' => 'Only stores can create delivery jobs'], 403);
         }
     
-        // 🚀 Criar a vaga
         $deliveryJob = DeliveryJob::create([
             'store_id' => $storeId,
             'title' => $request->title,
@@ -65,32 +59,43 @@ class DeliveryJobController extends Controller
         return response()->json(['message' => 'Vacancy created successfully', 'job' => $deliveryJob], 201);
     }
     
-    public function list(Request $request)
+    public function listMyJobs(Request $request)
     {   
 
-        $query = DeliveryJob::query();
+        $user = auth('api')->user();
 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        if ($user->role !== 'store') {
+            return response()->json(['error' => 'Acesso negado'], 403);
         }
     
-        $deliveryJob = $query->get();
+        $jobs = DeliveryJob::where('store_id', $user->store->id)->get();
+    
+        return response()->json($jobs, 200);
+    }
 
-        return response()->json([
-            'message' => 'List of delivery jobs',
-            'jobs' => $deliveryJob,
-        ]);
+    public function listAllJobs()
+    {
+        $user = auth('api')->user();
+
+        if ($user->role !== 'motorcyclist') {
+            return response()->json(['error' => 'Acesso negado'], 403);
+        }
+    
+        $jobs = DeliveryJob::where('status', 'open')->get();
+    
+        return response()->json($jobs, 200);
     }
 
     public function update(Request $request, $id)
-    {
+    {   
+        $user = auth('api')->user();
         $deliveryJob = DeliveryJob::findOrFail($id);
 
         if (!$deliveryJob) {
             return response()->json(['error' => 'Vaga não encontrada'], 404);
         }
 
-        if (auth('api')->user()->id !== $deliveryJob->store_id) {
+        if ($user->role !== 'store' || $deliveryJob->store_id !== $user->store->id) {
             return response()->json(['error' => 'Você não tem permissão para editar esta vaga'], 403);
         }
 
@@ -116,12 +121,11 @@ class DeliveryJobController extends Controller
     public function delete($id)
     {   
         $user = auth('api')->user();
+        $deliveryJob = DeliveryJob::findOrFail($id);
 
-        if ($user->role !== 'store') {
+        if ($user->role !== 'store' || $deliveryJob->store_id !== $user->store->id) {
             return response()->json(['error' => 'Apenas lojas podem excluir vagas'], 403);
         }
-
-        $deliveryJob = DeliveryJob::findOrFail($id);
 
         if (!$deliveryJob) {
             return response()->json(['error' => 'Vaga não encontrada'], 404);
