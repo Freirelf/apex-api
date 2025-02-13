@@ -33,7 +33,7 @@ Route::middleware(['auth:api'])->group(function () {
 // 📌 Routes for STORE (Create and manager)
 Route::middleware(['auth:api', 'role:store'])->group(function () {
     Route::post('/delivery-jobs', [DeliveryJobController::class, 'store']);  
-    Route::get('/delivery-jobs', [DeliveryJobController::class, 'list']);    
+    Route::get('/my-delivery-jobs', [DeliveryJobController::class, 'listMyJobs']);    
     Route::put('/delivery-jobs/{id}', [DeliveryJobController::class, 'update']); 
     Route::delete('/delivery-jobs/{id}', [DeliveryJobController::class, 'delete']); 
 });
@@ -43,11 +43,17 @@ Route::middleware(['auth:api', 'role:motorcyclist'])->group(function () {
     Route::post('/candidacy', [ApplicationController::class, 'apply']); 
     Route::get('/my-candidacy', [ApplicationController::class, 'myApplications']); 
     Route::delete('/candidacy/{id}', [ApplicationController::class, 'removeApplication']);
+    Route::get('/delivery-jobs', [DeliveryJobController::class, 'listAllJobs']);
 });
 
 Route::middleware(['auth:api', 'role:store'])->group(function () {
     Route::get('/delivery-jobs/{id}/candidates', [ApplicationController::class, 'listCandidates']); 
     Route::put('/candidacy/{id}/status', [ApplicationController::class, 'updateStatus']); 
+});
+
+Route::middleware(['auth:api', 'role:store'])->group(function () {
+    Route::get('/delivery-jobs/{id}/candidates', [ApplicationController::class, 'listCandidates']);
+    Route::put('/candidacy/{id}/status', [ApplicationController::class, 'updateStatus']);
 });
 
 // Routes for testing

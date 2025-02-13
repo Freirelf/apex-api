@@ -78,20 +78,26 @@ class ApplicationController extends Controller
             return response()->json(['error' => 'Acesso negado. Apenas lojas podem acessar essa rota.'], 403);
         }
 
-        $candidates = Application::with('delivery_job_id', $deliveryJobId)
-            ->with('motorcyclist')
-            ->get();
+        $candidates = Application::where('delivery_job_id', $deliveryJobId) 
+        ->with('deliveryJob') 
+        ->with('motorcyclist') 
+        ->get();
 
-        return response()->json($candidates);
+        return response()->json([
+            'message' => 'Candidatos listados com sucesso',
+            'candidates' => $candidates
+        ]);
     }
 
     public function updateStatus(Request $request, $id)
-    {
+    {   
+        
         $user = auth('api')->user();
 
         if ($user->role !== 'store') {
             return response()->json(['error' => 'Acesso negado. Apenas lojas podem acessar essa rota.'], 403);
         }
+        
 
         $request->validate([
             'status' => 'required|in:accepted,rejected',
@@ -99,13 +105,20 @@ class ApplicationController extends Controller
 
         $application = Application::find($id);
 
-        if (!$application) {
+        if (!$application || $application->deliveryJob->store_id !== $user->store->id) {
             return response()->json(['error' => 'Candidatura não encontrada'], 404);
         }
 
         $application->status = $request->status;
         $application->save();
 
-        return response()->json(['message' => 'Status atualizado com sucesso']);
+        if ($request->status === 'accepted') {
+            $application->deliveryJob->status = 'in_progress';
+            $application->deliveryJob->save();
+        }
+        return response()->json([
+            'message' => 'Status atualizado com sucesso',
+            'application' => $application
+        ], 200);
     }
 }
