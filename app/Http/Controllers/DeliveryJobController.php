@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Application;
 use App\Models\DeliveryJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,7 +82,8 @@ class DeliveryJobController extends Controller
             return response()->json(['error' => 'Acesso negado'], 403);
         }
     
-        $jobs = DeliveryJob::where('status', 'open')->get();
+        $jobs = DeliveryJob::where('status', ['open', 'in_progress'])->get();
+        $jobs = DeliveryJob::all();
     
         return response()->json($jobs, 200);
     }
@@ -110,12 +112,32 @@ class DeliveryJobController extends Controller
             'meal_included' => 'sometimes|required|boolean',
             'provides_bag' => 'sometimes|required|boolean',
             'pickup_address' => 'sometimes|required|string|max:255',
-            'status' => 'sometimes|required|in:open,in_progress,completed',
+            'status' => 'sometimes|required|in:open,in_progress,closed',
         ]);
 
         $deliveryJob->update($request->all());
 
         return response()->json(['message' => 'Job updated successfully', 'job' => $deliveryJob]);
+    }
+
+    public function reopenJob($deliveryJobId)
+    {
+        $user = auth('api')->user();
+        $deliveryJobId = DeliveryJob::where('id', $deliveryJobId)
+        ->where('store_id', $user->store->id)
+        ->first();
+
+        if(!$deliveryJobId) {
+            return response()->json(['error' => 'Vaga não encontrada'], 404);
+        }
+
+        $deliveryJobId->update(['status' => 'open']);
+
+        Application::where('delivery_job_id', $deliveryJobId->id)
+        ->where('status', 'accepted')
+        ->update(['status' => 'rejected']);
+
+        return response()->json(['message' => 'Vaga reaberta com sucesso']);
     }
 
     public function delete($id)
