@@ -56,6 +56,12 @@ Route::middleware(['auth:api', 'role:store'])->group(function () {
     Route::put('/candidacy/{id}/status', [ApplicationController::class, 'updateStatus']);
 });
 
+Route::middleware(['auth:api', 'role:store'])->group(function () {
+    Route::put('/delivery-jobs/{id}/reopen', [DeliveryJobController::class, 'reopenJob']); // Loja reabrir vaga
+    Route::put('/candidacy/{id}/cancel', [ApplicationController::class, 'cancelApplication']); // Loja cancelar candidatura aceita
+});
+
+
 // Routes for testing
 // Route::middleware(['auth:api', 'role:store'])->get('/test-role', function (Request $request) {
 //     return response()->json(['message' => 'Middleware funcionando!', 'user' => auth('api')->user()]);

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->boolean('meal_included')->default(false); // Refeição no local?
             $table->boolean('provides_bag')->default(false); // Disponibiliza bag?
             $table->string('pickup_address'); // Endereço de coleta
-            $table->enum('status', ['open', 'in_progress', 'completed'])->default('open'); // Status da vaga
+            $table->enum('status', ['open', 'in_progress', 'closed'])->default('open'); // Status da vaga
             $table->timestamps(); // created_at e updated_at
         });
     }
